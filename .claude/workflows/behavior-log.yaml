@@ -1,0 +1,114 @@
+---
+workflow:
+  name: "Student Behavior Log Entry"
+  version: "1.0"
+  description: "Standardized procedure for creating student behavior log entries"
+
+trigger:
+  keywords:
+    - "log student behavior"
+    - "behavior log"
+    - "create behavior log"
+    - "student incident"
+    - "log entry"
+
+mode:
+  interaction: "structured-interview"
+  verbosity: "minimal"
+  response_style: "concise"
+
+sequence:
+  questions:
+    - id: "student_name"
+      prompt: "Student name?"
+      required: true
+      type: "text"
+
+    - id: "datetime"
+      prompt: "Date & time?"
+      required: true
+      type: "datetime"
+      default: "current_datetime"
+
+    - id: "location"
+      prompt: "Location?"
+      required: true
+      type: "text"
+      examples: ["Classroom", "Hallway", "Cafeteria", "Playground", "Gym"]
+
+    - id: "behavior"
+      prompt: "What behavior occurred?"
+      required: true
+      type: "text"
+      guidance: "Brief, objective description"
+
+    - id: "trigger"
+      prompt: "What triggered it? (if known)"
+      required: false
+      type: "text"
+      allow_unknown: true
+
+    - id: "action_taken"
+      prompt: "Action taken?"
+      required: true
+      type: "text"
+      examples: ["Verbal redirect", "Timeout", "Conference", "Parent contact", "Admin referral"]
+
+    - id: "follow_up"
+      prompt: "Follow-up needed? (yes/no/who)"
+      required: true
+      type: "text"
+      default: "no"
+
+output:
+  format: "markdown"
+  template: |
+    # Behavior Log Entry
+
+    **Student:** {{student_name}}
+    **Date/Time:** {{datetime}}
+    **Location:** {{location}}
+
+    **Incident:** {{behavior}}
+    **Trigger:** {{trigger}}
+    **Response:** {{action_taken}}
+    **Follow-up:** {{follow_up}}
+
+    ---
+    *Entry created: {{timestamp}}*
+
+  file_management:
+    directory: "Student-Logs/2025-26"
+    naming_convention: "{{date_YYYY-MM-DD}}_{{student_name_normalized}}.md"
+    append_if_exists: true
+    append_separator: "\n\n---\n\n"
+
+  post_creation:
+    - "Confirm entry saved"
+    - "Ask if another entry needed"
+
+rules:
+  - "Ask ONE question at a time"
+  - "Wait for user response before next question"
+  - "Accept brief answers (single words/phrases OK)"
+  - "Use defaults when appropriate"
+  - "Do not elaborate or explain unless asked"
+  - "Maintain objective, professional tone"
+  - "Auto-suggest location/action from previous entries if available"
+  - "Create directory structure if missing"
+
+validation:
+  required_fields: ["student_name", "datetime", "location", "behavior", "action_taken"]
+  date_format: "YYYY-MM-DD HH:MM"
+  file_size_max: "10KB"
+
+error_handling:
+  missing_required: "Ask for missing required field"
+  invalid_format: "Request correction with example"
+  file_write_error: "Report error and ask for alternative location"
+
+metadata:
+  author: "User & Claude Code"
+  category: "professional-documentation"
+  tags: ["behavior", "student-logs", "classroom-management"]
+  retention: "Follow district policy"
